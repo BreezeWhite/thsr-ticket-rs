@@ -1,13 +1,13 @@
 name: Build Rust Project
 
-on:
-  push:
-    branches:
-      - main
 # on:
 #   push:
-#     tags:
-#       - "v*.*.*"
+#     branches:
+      # - main
+on:
+  push:
+    tags:
+      - "v*"
 
 permissions:
   contents: write
