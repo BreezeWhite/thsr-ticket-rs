@@ -29,7 +29,7 @@ cargo install --git https://github.com/BreezeWhite/thsr-ticket-rs
 thsr
 
 # Or pass values to arguments.
-# If some required informations are not spericied, the program will ask you to enter.
+# If some required informations are not specified, the program will ask you to enter.
 thsr --from 2 --to 11 --adult-cnt 2
 
 # To see available stations and its ID value
@@ -44,7 +44,7 @@ thsr --date 2025/1/01
 thsr --date 2025/01/1
 thsr --date 2025/1/1
 
-# To use membership, you need to explicitly specify the flat `--membership-id`.
+# To use membership, you need to explicitly specify the flag `--membership-id`.
 # The default booking process does not include entering membership.
 thsr --memberhip-id <your_id_here>
 ```
