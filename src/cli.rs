@@ -40,6 +40,7 @@ pub struct Args {
     /// Seat preference. 0: None, 1: Window, 2: Aisle
     #[arg(
         long,
+        short = 'p',
         value_name = "NUMBER",
         value_parser = clap::builder::PossibleValuesParser::new(["0", "1", "2"])
             .map(|s| s.parse::<usize>().unwrap())
@@ -50,6 +51,7 @@ pub struct Args {
     /// Class type. 0: Standard, 1: Business
     #[arg(
         long,
+        short = 'c',
         value_name = "NUMBER",
         value_parser = clap::builder::PossibleValuesParser::new(["0", "1"])
             .map(|s| s.parse::<usize>().unwrap())
