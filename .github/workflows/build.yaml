@@ -69,11 +69,11 @@ jobs:
           ls -R
           mv build-ubuntu-22.04/thsr thsr-ubuntu-22.04
           mv build-macos-latest/thsr thsr-macos-latest
-          mv build-windows-latest/thsr thsr-windows-latest
+          mv build-windows-latest/thsr.exe thsr-windows-latest.exe
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
           files: |
             thsr-ubuntu-22.04
             thsr-macos-latest
-            thsr-windows-latest
+            thsr-windows-latest.exe
