@@ -64,12 +64,16 @@ jobs:
     steps:
       - name: Donwload build artifacts
         uses: actions/download-artifact@v4
-      - name: Display structure of downloaded files
-        run: ls -R
+      - name: Display structure of downloaded files and modify path
+        run: |
+          ls -R
+          mv build-ubuntu-22.04/thsr thsr-ubuntu-22.04
+          mv build-macos-latest/thsr thsr-macos-latest
+          mv build-windows-latest/thsr thsr-windows-latest
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            build-ubuntu-22.04
-            build-macos-latest
-            build-windows-latest
+            thsr-ubuntu-22.04
+            thsr-macos-latest
+            thsr-windows-latest
