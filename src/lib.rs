@@ -43,10 +43,7 @@ fn get_header() -> HeaderMap {
         "Accept-Language",
         HeaderValue::from_static("zh-TW,zh;q=0.8,en-US;q=0.5,en;q=0.3"),
     );
-    headers.insert(
-        "Accept-Encoding",
-        HeaderValue::from_static("gzip, deflate, br"),
-    );
+    headers.insert("Accept-Encoding", HeaderValue::from_static("deflate, br"));
     headers.insert("Connection", HeaderValue::from_static("keep-alive"));
     headers.insert("Upgrade-Insecure-Requests", HeaderValue::from_static("1"));
     headers.insert(
@@ -827,7 +824,7 @@ pub mod confirm_ticket_flow {
             let input = match personal_id.clone() {
                 Some(id) => id,
                 None => {
-                    println!("Input personal ID (default: 1):");
+                    println!("Input personal ID:");
                     let mut input = String::new();
                     std::io::stdin().read_line(&mut input).unwrap_or_default();
                     let input: String = input.trim().to_string();
