@@ -4,10 +4,13 @@ on:
   push:
     branches:
       - main
-  pull_request:
-  release:
-    types:
-      - created
+# on:
+#   push:
+#     tags:
+#       - "v*.*.*"
+
+permissions:
+  contents: write
 
 jobs:
   build:
@@ -53,3 +56,15 @@ jobs:
           path: |
             target/release/thsr
             target/release/thsr.exe
+
+  release:
+    name: Publish Release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Donwload build artifacts
+        uses: actions/download-artifact@v4
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: build-*
