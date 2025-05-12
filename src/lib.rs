@@ -2,7 +2,6 @@ pub mod cli;
 pub mod schema;
 
 use bytes::Bytes;
-use regex::Regex;
 use reqwest::blocking::Client;
 use reqwest::header::{HeaderMap, HeaderValue};
 use scraper::{Html, Selector};
@@ -11,10 +10,9 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs;
 use std::process::Command;
-use strum::IntoEnumIterator;
 
 use crate::cli::Args;
-use crate::schema::{StationMap, TIME_TABLE, TicketType};
+use crate::schema::{STATION_MAP, TIME_TABLE, TicketType};
 
 static BASE_URL: &str = "https://irs.thsrc.com.tw";
 static BOOKING_PAGE_URL: &str = "https://irs.thsrc.com.tw/IMINT/?locale=tw";
@@ -301,8 +299,8 @@ pub mod booking_flow {
     impl Default for BookingPayload {
         fn default() -> Self {
             BookingPayload {
-                start_station: StationMap::Nangang as u8,
-                dest_station: StationMap::Zuouing as u8,
+                start_station: 1,
+                dest_station: 12,
                 search_by: "1".to_string(),
                 types_of_trip: 0,
                 outbound_date: "2023/10/01".to_string(),
@@ -332,17 +330,17 @@ pub mod booking_flow {
             }
 
             println!("Please select start station:");
-            for (i, station) in StationMap::iter().enumerate() {
+            for (i, station) in STATION_MAP.iter().enumerate() {
                 println!("{}: {:?}", i + 1, station);
             }
             let mut input = String::new();
             std::io::stdin().read_line(&mut input).unwrap_or_default();
             let input: usize = input.trim().parse().unwrap_or(1);
-            if input > 0 && input <= StationMap::iter().count() {
-                self.start_station = StationMap::iter().nth(input - 1).unwrap() as u8;
+            if input > 0 && input <= STATION_MAP.len() {
+                self.start_station = input as u8;
             } else {
                 println!("Invalid input, defaulting to Nangang.");
-                self.start_station = StationMap::Nangang as u8;
+                self.start_station = 1;
             }
         }
 
@@ -353,17 +351,17 @@ pub mod booking_flow {
             }
 
             println!("Please select destination station:");
-            for (i, station) in StationMap::iter().enumerate() {
+            for (i, station) in STATION_MAP.iter().enumerate() {
                 println!("{}: {:?}", i + 1, station);
             }
             let mut input = String::new();
             std::io::stdin().read_line(&mut input).unwrap_or(12);
             let input: usize = input.trim().parse().unwrap();
-            if input > 0 && input <= StationMap::iter().count() {
-                self.dest_station = StationMap::iter().nth(input - 1).unwrap() as u8;
+            if input > 0 && input <= STATION_MAP.len() {
+                self.dest_station = input as u8;
             } else {
                 println!("Invalid input, defaulting to Zuouing.");
-                self.dest_station = StationMap::Zuouing as u8;
+                self.dest_station = 12;
             }
         }
 
@@ -531,18 +529,20 @@ pub mod booking_flow {
     }
 
     fn normalize_date(input: &str) -> Option<String> {
-        let re = Regex::new(r"^[1-9]\d{3}/(0?[1-9]|1[0-2])/(0?[1-9]|[12][0-9]|3[01])$").unwrap();
-        if let Some(captures) = re.captures(input) {
-            let month = captures.get(1).unwrap().as_str().parse::<u8>().unwrap();
-            let day = captures.get(2).unwrap().as_str().parse::<u8>().unwrap();
-            return Some(format!(
-                "{:04}/{:02}/{:02}",
-                input[..4].parse::<u16>().unwrap(),
-                month,
-                day
-            ));
+        let parts: Vec<&str> = input.split('/').collect();
+        if parts.len() != 3 {
+            return None;
         }
-        None
+
+        let year = parts[0].parse::<u16>().ok()?;
+        let month = parts[1].parse::<u8>().ok()?;
+        let day = parts[2].parse::<u8>().ok()?;
+
+        if year >= 1000 && month >= 1 && month <= 12 && day >= 1 && day <= 31 {
+            Some(format!("{:04}/{:02}/{:02}", year, month, day))
+        } else {
+            None
+        }
     }
 
     fn show_image(img_data: &[u8]) {

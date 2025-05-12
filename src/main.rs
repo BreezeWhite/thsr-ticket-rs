@@ -1,12 +1,11 @@
 use clap::Parser;
-use strum::IntoEnumIterator;
 
 use thsr::cli::Args;
 use thsr::run;
-use thsr::schema::{StationMap, TIME_TABLE};
+use thsr::schema::{STATION_MAP, TIME_TABLE};
 
 fn show_station() {
-    for (i, station) in StationMap::iter().enumerate() {
+    for (i, station) in STATION_MAP.iter().enumerate() {
         println!("{}: {:?}", i + 1, station);
     }
 }
