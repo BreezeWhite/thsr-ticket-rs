@@ -46,7 +46,7 @@ thsr --date 2025/1/1
 
 # To use membership, you need to explicitly specify the flag `--membership-id`.
 # The default booking process does not include entering membership.
-thsr --memberhip-id <your_id_here>
+thsr --membership-id <your_id_here>
 ```
 
 ### Complete options
