@@ -126,8 +126,8 @@ pub mod booking_flow {
         let body = response.text().unwrap(); // Get the response body as a string
         let document = Html::parse_document(&body);
 
-        // Request sercurity code image
-        let sec_code_img_url = parse_sercurity_code_img_url(&document);
+        // Request security code image
+        let sec_code_img_url = parse_security_code_img_url(&document);
         let img_resp = client.get(&sec_code_img_url).send().unwrap();
 
         // Making selections
@@ -194,7 +194,7 @@ pub mod booking_flow {
         tag.value().attr("value").unwrap().to_string()
     }
 
-    fn parse_sercurity_code_img_url(page: &Html) -> String {
+    fn parse_security_code_img_url(page: &Html) -> String {
         let selector = Selector::parse("#BookingS1Form_homeCaptcha_passCode").unwrap();
         let elem = page.select(&selector).next().unwrap();
         let img_url = elem.attr("src").unwrap();
@@ -366,7 +366,7 @@ pub mod booking_flow {
         }
 
         pub fn input_security_code(&mut self, img_data: Bytes) {
-            println!("Input sercurity code:");
+            println!("Input security code:");
             show_image(&img_data);
             // Read the security code from the user
             let mut input = String::new();
