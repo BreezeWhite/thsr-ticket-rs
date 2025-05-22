@@ -18,7 +18,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-22.04, macos-latest, windows-latest]
+        os: [ubuntu-22.04, macos-latest, macos-13, windows-latest]
 
     steps:
       - name: Checkout code
@@ -69,6 +69,7 @@ jobs:
           ls -R
           mv build-ubuntu-22.04/thsr thsr-ubuntu-22.04
           mv build-macos-latest/thsr thsr-macos-latest
+          mv build-macos-13/thsr thsr-macos-intel
           mv build-windows-latest/thsr.exe thsr-windows-latest.exe
       - name: Release
         uses: softprops/action-gh-release@v2
@@ -76,4 +77,5 @@ jobs:
           files: |
             thsr-ubuntu-22.04
             thsr-macos-latest
+            thsr-macos-intel
             thsr-windows-latest.exe
