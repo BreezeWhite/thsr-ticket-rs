@@ -59,9 +59,9 @@ pub struct Args {
     ]
     pub class_type: Option<usize>,
 
-    /// Use membership ID
-    #[arg(long, short = 'm', value_name = "MEMBERSHIP_ID")]
-    pub membership_id: Option<String>,
+    /// Whether to use personal ID as membership
+    #[arg(long, short = 'm', value_name = "TO_USE_MEMBERSHIP")]
+    pub use_membership: Option<bool>,
 
     /// List available stations
     #[arg(long)]

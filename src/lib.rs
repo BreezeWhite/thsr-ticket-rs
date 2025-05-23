@@ -8,8 +8,10 @@ use scraper::{Html, Selector};
 use serde::{Deserialize, Serialize};
 
 use std::collections::HashMap;
+use std::fmt::Debug;
 use std::fs;
 use std::process::Command;
+use std::str::FromStr;
 
 use crate::cli::Args;
 use crate::schema::{STATION_MAP, TIME_TABLE, TicketType};
@@ -51,6 +53,17 @@ fn get_header() -> HeaderMap {
     headers.insert("Sec-Fetch-Site", HeaderValue::from_static("same-origin"));
     headers.insert("Sec-Fetch-Mode", HeaderValue::from_static("no-cors"));
     headers
+}
+
+fn get_input<T: FromStr>(hint: &str, default: T) -> T {
+    println!("{hint}");
+    let mut input = String::new();
+    std::io::stdin().read_line(&mut input).unwrap_or_default();
+    let input = input.trim().to_string();
+    if input.is_empty() {
+        return default;
+    }
+    input.parse().unwrap_or(default)
 }
 
 pub fn run(args: Args) {
@@ -329,13 +342,10 @@ pub mod booking_flow {
                 return;
             }
 
-            println!("Please select start station:");
             for (i, station) in STATION_MAP.iter().enumerate() {
                 println!("{}: {:?}", i + 1, station);
             }
-            let mut input = String::new();
-            std::io::stdin().read_line(&mut input).unwrap_or_default();
-            let input: usize = input.trim().parse().unwrap_or(1);
+            let input = get_input("Please select start station (default: 1):", 1);
             if input > 0 && input <= STATION_MAP.len() {
                 self.start_station = input as u8;
             } else {
@@ -350,13 +360,10 @@ pub mod booking_flow {
                 return;
             }
 
-            println!("Please select destination station:");
             for (i, station) in STATION_MAP.iter().enumerate() {
                 println!("{}: {:?}", i + 1, station);
             }
-            let mut input = String::new();
-            std::io::stdin().read_line(&mut input).unwrap_or(12);
-            let input: usize = input.trim().parse().unwrap();
+            let input = get_input("Please select destination station (default: 12):", 12);
             if input > 0 && input <= STATION_MAP.len() {
                 self.dest_station = input as u8;
             } else {
@@ -384,16 +391,13 @@ pub mod booking_flow {
         ) {
             let input = match date.clone() {
                 Some(date) => date,
-                None => {
-                    println!(
+                None => get_input(
+                    &format!(
                         "Please select a date between {} and {} (default to {}):",
                         start_date, end_date, start_date
-                    );
-                    let mut input = String::new();
-                    std::io::stdin().read_line(&mut input).unwrap_or_default();
-                    let input: String = input.trim().to_string();
-                    input
-                }
+                    ),
+                    start_date.clone(),
+                ),
             };
 
             let input = match normalize_date(&input) {
@@ -421,7 +425,6 @@ pub mod booking_flow {
             let opt = match time.clone() {
                 Some(time) => time,
                 None => {
-                    println!("Select departure time:");
                     for (idx, &t_str) in TIME_TABLE.iter().enumerate() {
                         let mut t_int = t_str[..t_str.len() - 1].parse::<u16>().unwrap();
                         if t_str.ends_with('A') && (t_int / 100) == 12 {
@@ -437,12 +440,7 @@ pub mod booking_flow {
                             &formatted_time[formatted_time.len() - 2..]
                         );
                     }
-
-                    let mut input = String::new();
-                    println!("Input selection (default: {}):", 10);
-                    std::io::stdin().read_line(&mut input).unwrap_or_default();
-                    let selected_opt: usize = input.trim().parse().unwrap_or(10);
-                    selected_opt
+                    get_input("Select departure time (default: 10):", 10)
                 }
             };
 
@@ -458,16 +456,13 @@ pub mod booking_flow {
         pub fn select_ticket_num(&mut self, ticket_type: TicketType, val: &Option<u8>) {
             let mut val = match val.clone() {
                 Some(val) => val,
-                None => {
-                    println!(
+                None => get_input(
+                    &format!(
                         "Please select the number (0~10) of tickets for {:?} (default: 1)",
                         ticket_type
-                    );
-                    let mut input = String::new();
-                    std::io::stdin().read_line(&mut input).unwrap_or(1);
-                    let input: u8 = input.trim().parse().unwrap_or(1);
-                    input
-                }
+                    ),
+                    1,
+                ),
             };
 
             if val > 10 {
@@ -488,15 +483,10 @@ pub mod booking_flow {
         pub fn select_seat_prefer(&mut self, prefer: &Option<usize>) {
             let input = match prefer.clone() {
                 Some(prefer) => prefer,
-                None => {
-                    println!(
-                        "Please select seat preference (0: any, 1: window, 2: aisle) (default: 0):"
-                    );
-                    let mut input = String::new();
-                    std::io::stdin().read_line(&mut input).unwrap_or_default();
-                    let input: usize = input.trim().parse().unwrap_or(0);
-                    input
-                }
+                None => get_input(
+                    "Please select seat preference (0: any, 1: window, 2: aisle) (default: 0):",
+                    0,
+                ),
             };
 
             if input > 2 {
@@ -510,13 +500,10 @@ pub mod booking_flow {
         pub fn select_class_type(&mut self, class_type: &Option<usize>) {
             let input = match class_type.clone() {
                 Some(class_type) => class_type,
-                None => {
-                    println!("Please select class type (0: standard, 1: business) (default: 0):");
-                    let mut input = String::new();
-                    std::io::stdin().read_line(&mut input).unwrap_or_default();
-                    let input: usize = input.trim().parse().unwrap_or(0);
-                    input
-                }
+                None => get_input(
+                    "Please select class type (0: standard, 1: business) (default: 0):",
+                    0,
+                ),
             };
 
             if input > 1 {
@@ -703,11 +690,7 @@ pub mod confirm_train_flow {
                 );
             }
 
-            println!("Select a train (default: 1):");
-            let mut input = String::new();
-            std::io::stdin().read_line(&mut input).unwrap_or_default();
-            let selection: usize = input.trim().parse().unwrap_or(1);
-
+            let selection = get_input("Select a train (default: 1):", 1);
             self.selected_train = trains[selection - 1].form_value.clone();
         }
     }
@@ -723,14 +706,16 @@ pub mod confirm_ticket_flow {
 
         let mut payload = ConfirmTicketPayload::default();
 
+        // Input personal ID
+        let personal_id = payload.input_personal_id(&args.personal_id);
+
         // Parse membership radio
-        let (radio_value, add_payload) = process_membership(&document, &args.membership_id);
+        let (radio_value, add_payload) =
+            process_membership(&document, &personal_id, &args.use_membership);
         payload.member_radio = radio_value;
 
-        let personal_id = payload.input_personal_id(&args.personal_id);
-        let mut payload = serde_urlencoded::to_string(&payload).unwrap();
-
         // Additional flow for early bird
+        let mut payload = serde_urlencoded::to_string(&payload).unwrap();
         if let Some(additional_payload) = process_early_bird(&document, &personal_id) {
             let additional_payload = serde_urlencoded::to_string(&additional_payload).unwrap();
             payload = format!("{}&{}", payload, additional_payload);
@@ -837,17 +822,31 @@ pub mod confirm_ticket_flow {
         }
     }
 
-    fn process_membership(page: &Html, membership_id: &Option<String>) -> (String, Option<String>) {
-        let sel_str = match membership_id {
-            Some(_) => "#memberSystemRadio1",
-            None => "#memberSystemRadio3",
+    fn process_membership(
+        page: &Html,
+        membership_id: &String,
+        to_use_membership: &Option<bool>,
+    ) -> (String, Option<String>) {
+        let use_membership = match to_use_membership {
+            Some(v) => *v,
+            None => {
+                match get_input("Use membership (y/n, default: n):", "n".to_string()).as_str() {
+                    "y" => true,
+                    _ => false,
+                }
+            }
+        };
+
+        let sel_str = match use_membership {
+            true => "#memberSystemRadio1",
+            false => "#memberSystemRadio3",
         };
 
         let membership_selector = Selector::parse(sel_str).unwrap();
         let elem = page.select(&membership_selector).next().unwrap();
         let membership_radio = elem.attr("value").unwrap();
 
-        if let Some(membership_id) = membership_id {
+        if use_membership {
             let payload = vec![
                 (
                     "TicketMemberSystemInputPanel:TakerMemberSystemDataView:memberSystemRadioGroup:memberShipNumber",
@@ -876,6 +875,11 @@ pub mod confirm_ticket_flow {
             return None;
         }
 
+        let personal_id = get_input(
+            &format!("Passenger's ID number (default: {}):", personal_id),
+            personal_id.to_string(),
+        );
+
         let early_type_selector = Selector::parse(
             "input[name='TicketPassengerInfoInputPanel:passengerDataView:0:passengerDataView2:passengerDataTypeName']").unwrap();
         let early_type_elem = page.select(&early_type_selector).next().unwrap();
@@ -896,7 +900,7 @@ pub mod confirm_ticket_flow {
             ),
             (
                 "TicketPassengerInfoInputPanel:passengerDataView:0:passengerDataView2:passengerDataIdNumber".to_string(),
-                personal_id.to_string(),
+                personal_id,
             ),
             (
                 "TicketPassengerInfoInputPanel:passengerDataView:0:passengerDataView2:passengerDataInputChoice".to_string(),
@@ -905,12 +909,20 @@ pub mod confirm_ticket_flow {
         ]);
 
         for i in 1..elem.len() {
-            println!(
-                "Input passenger info for passenger {}\n(ID change is not allowed after input!):",
-                i + 1
-            );
-            let mut inp_id = String::new();
-            std::io::stdin().read_line(&mut inp_id).unwrap_or_default();
+            let inp_id = loop {
+                let inp_id = get_input(
+                    &format!(
+                        "Input passenger's ID for passenger {}\n(ID change is not allowed after input!):",
+                        i + 1
+                    ),
+                    "".to_string(),
+                );
+                if inp_id.is_empty() {
+                    println!("ID should not be empty!");
+                } else {
+                    break inp_id;
+                }
+            };
 
             additional_payload.insert(
                 format!("TicketPassengerInfoInputPanel:passengerDataView:{i}:passengerDataView2:passengerDataLastName"),
