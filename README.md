@@ -18,6 +18,10 @@ Make sure you have [cargo](https://doc.rust-lang.org/cargo/getting-started/insta
 For older linux machines, this method is preferred, since the release is built by Github Action and the workflow only supports Ubuntu-22.04 and latter.
 
 ```bash
+# Install rust toolchain
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+
+# Build and install
 cargo install --git https://github.com/BreezeWhite/thsr-ticket-rs
 ```
 
@@ -44,31 +48,46 @@ thsr --date 2025/1/01
 thsr --date 2025/01/1
 thsr --date 2025/1/1
 
-# To use membership, you need to explicitly specify the flag `--membership-id`.
-# The default booking process does not include entering membership.
-thsr --membership-id <your_id_here>
+# Use membership. The membership ID will be the same as the personal ID.
+thsr --use-membership true
 ```
 
 ### Complete options
 
 ```bash
+A CLI tool for booking Taiwan High Speed Rail tickets. Run the program without flags will guide you through the booking process
+
 Usage: thsr [OPTIONS]
 
 Options:
-  -i, --personal-id <ID>               Personal ID
-  -d, --date <DATE>                    Departure date
-  -T, --time <TIME_ID>                 Time ID of the departure time. To see available times, use the --list-time-table option
-  -f, --from <STATION_ID>              Departure station ID. To see available stations, use the --list-station option
-  -t, --to <STATION_ID>                Arrival station ID. To see available stations, use the --list-station option
-  -a, --adult-cnt <NUMBER>             Number of adults
-  -s, --student-cnt <NUMBER>           Number of students
-  -p, --seat-prefer <NUMBER>           Seat preference. 0: None, 1: Window, 2: Aisle [possible values: 0, 1, 2]
-  -c, --class-type <NUMBER>            Class type. 0: Standard, 1: Business [possible values: 0, 1]
-  -m, --membership-id <MEMBERSHIP_ID>  Use membership ID
-      --list-station                   List available stations
-      --list-time-table                List available times
-  -h, --help                           Print help
-  -V, --version                        Print version
+  -i, --personal-id <ID>
+          Personal ID
+  -d, --date <DATE>
+          Departure date
+  -T, --time <TIME_ID>
+          Time ID of the departure time. To see available times, use the --list-time-table option
+  -f, --from <STATION_ID>
+          Departure station ID. To see available stations, use the --list-station option
+  -t, --to <STATION_ID>
+          Arrival station ID. To see available stations, use the --list-station option
+  -a, --adult-cnt <NUMBER>
+          Number of adults
+  -s, --student-cnt <NUMBER>
+          Number of students
+  -p, --seat-prefer <NUMBER>
+          Seat preference. 0: None, 1: Window, 2: Aisle [possible values: 0, 1, 2]
+  -c, --class-type <NUMBER>
+          Class type. 0: Standard, 1: Business [possible values: 0, 1]
+  -m, --use-membership <TO_USE_MEMBERSHIP>
+          Whether to use personal ID as membership [possible values: true, false]
+      --list-station
+          List available stations
+      --list-time-table
+          List available times
+  -h, --help
+          Print help
+  -V, --version
+          Print version
 ```
 
 
